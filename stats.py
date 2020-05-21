@@ -10,9 +10,8 @@ NEW_DAY = 4
 
 
 def stats():
-    logger.info("Stats")
+    logger.info("Calculating stats")
     ###STREAK, REVIEWS PAST 31 DAYS###
-    config = mw.addonManager.getConfig(__name__)
     new_day = datetime.time(NEW_DAY, 0, 0)
     time_now = datetime.datetime.now().time()
     reviews = mw.col.db.list("SELECT id FROM revlog")

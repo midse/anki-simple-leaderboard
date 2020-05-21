@@ -6,9 +6,7 @@ def config_logger():
     my_logger = logging.getLogger("simple-leaderboard")
     path = os.path.dirname(os.path.realpath(__file__))
     handler = logging.FileHandler(f"{path}/debug.log")
-    formatter = logging.Formatter(
-        "%(asctime)s %(levelname)s %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
     handler.setFormatter(formatter)
     my_logger.addHandler(handler)
     my_logger.setLevel(logging.DEBUG)
