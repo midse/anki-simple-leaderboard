@@ -12,6 +12,7 @@ redis = "^3.5.2"
 aqt = "^2.1.26"
 anki = "^2.1.26"
 ankirspy = "^2.1.26"
+requests = "^2.23.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
