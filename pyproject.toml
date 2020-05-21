@@ -11,10 +11,13 @@ flask = "^1.1.2"
 redis = "^3.5.2"
 aqt = "^2.1.26"
 anki = "^2.1.26"
+ankirspy = "^2.1.26"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
 pylint = "^2.5.2"
+ipython = "^7.14.0"
+mypy = "^0.770"
 
 [build-system]
 requires = ["poetry>=0.12"]
