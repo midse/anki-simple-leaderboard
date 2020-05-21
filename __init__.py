@@ -15,11 +15,10 @@
 import uuid
 import os
 import logging
-import requests
 
 from aqt import mw, gui_hooks
 from .stats import stats
-from .utils import logger
+from .utils import logger, create_or_update_user
 
 
 def profile_open():
@@ -29,40 +28,21 @@ def profile_open():
 
 def profile_close():
     logger.info("Profile close!")
+
+    if not create_or_update_user():
+        logger.critical("Unable to update user information!")
+        return
+
     logger.info(stats())
 
 
 logger.info("Launching leaderboard...")
 
-config = mw.addonManager.getConfig(__name__)
-
-if not config.get("user_id"):
-    config["user_id"] = str(uuid.uuid4())
-    logger.info(f"Generating user id : {config['user_id']}")
-    mw.addonManager.writeConfig(__name__, config)
-
-
-r = requests.get(config["backend_url"] + f"/users/{config['user_id']}")
-data = {
-    "user_id": config["user_id"],
-    "user_name": config["user_name"],
-    "team_id": config["team_id"],
-}
-
-method = "post" if r.status_code == 404 else "put"
-
-endpoint = config["backend_url"] + f"/users"
-
-if method == "put":
-    endpoint += "/" + config["user_id"]
-
-logger.info("Updating user information...")
-r = getattr(requests, method)(endpoint, data=data)
-
-try:
-    r.raise_for_status()
-    logger.info(r.json())
+if not create_or_update_user():
+    logger.critical("Unable to update user information!")
+else:
+    # Linking hooks
     gui_hooks.profile_did_open.append(profile_open)
     gui_hooks.profile_will_close.append(profile_close)
-except:
-    logger.critical("Unable to update user information!")
+
+
