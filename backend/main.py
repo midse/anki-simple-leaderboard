@@ -1,8 +1,10 @@
-from flask import Flask, url_for, abort, jsonify, request
+from flask import Flask, url_for, abort, jsonify, request, render_template
 from markupsafe import escape
 import redis
-import time
+import datetime
 import json
+import uuid
+
 
 app = Flask(__name__)
 pool = redis.ConnectionPool(host="localhost", port=6379, db=0)
@@ -54,12 +56,12 @@ def create_or_update_user(form):
 @app.route("/teams/", methods=["GET", "POST"])
 def teams():
     if request.method == "POST":
-        team_id = request.form["team_id"]
         user_id = request.form["user_id"]
 
-        if r.get(team_key(team_id, details=True)) or not r.get(user_key(user_id)):
+        if not r.get(user_key(user_id)):
             abort(400)
 
+        team_id = str(uuid.uuid4())
         team_details = {
             "owner": user_id,
             "team_id": team_id,
@@ -71,11 +73,18 @@ def teams():
 
         return jsonify(team_details)
 
-    teams = []
+    if request.method == "GET":
+        if user_id := request.args.get("user_id"):
+            if not r.get(user_key(user_id)):
+                abort(404)
 
-    for key in r.keys("team::*::details"):
-        teams.append(json.loads(r.get(key)))
-    return jsonify(teams)
+            return render_template("create_team.html", user_id=user_id)
+        else:
+            teams = []
+
+            for key in r.keys("team::*::details"):
+                teams.append(json.loads(r.get(key)))
+            return jsonify(teams)
 
 
 @app.route("/teams/<uuid:team_id>", methods=["GET", "PUT"])
@@ -149,6 +158,10 @@ def stats():
             "past_30_days": request.form["past_30_days"],
             "retention": request.form["retention"],
         }
-        r.hset(stat_key(user_id), str(time.time()), json.dumps(stats))
+        r.hset(
+            stat_key(user_id),
+            datetime.date.today().strftime("%Y%m%d"),
+            json.dumps(stats),
+        )
 
         return jsonify(stats)

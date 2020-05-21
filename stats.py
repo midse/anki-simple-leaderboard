@@ -106,4 +106,7 @@ def stats():
                 time_today = time_today + int(i[7])
     time_today = round(time_today / 60000, 1)
 
-    return (streak, total_cards, time_today, cards_past_30_days, retention)
+    # TODO: real number?
+    total_days = len(set(date_list))
+
+    return (streak, total_cards, time_today, cards_past_30_days, retention, total_days)
