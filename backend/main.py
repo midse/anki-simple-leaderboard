@@ -1,6 +1,7 @@
 from flask import Flask, url_for, abort, jsonify, request
 from markupsafe import escape
 import redis
+import time
 import json
 
 app = Flask(__name__)
@@ -19,6 +20,10 @@ def team_key(team_id, details=False):
 
 def user_key(user_id):
     return f"user::{user_id}"
+
+
+def stat_key(user_id):
+    return f"stat::{user_id}"
 
 
 def create_or_update_user(form):
@@ -46,7 +51,7 @@ def create_or_update_user(form):
     return user_data
 
 
-@app.route("/teams", methods=["GET", "POST"])
+@app.route("/teams/", methods=["GET", "POST"])
 def teams():
     if request.method == "POST":
         team_id = request.form["team_id"]
@@ -86,7 +91,7 @@ def team(team_id):
     return jsonify(json.loads(team))
 
 
-@app.route("/users", methods=["GET", "POST"])
+@app.route("/users/", methods=["GET", "POST"])
 def users():
     if request.method == "POST":
         return create_or_update_user(request.form)
@@ -109,7 +114,15 @@ def user(user_id):
     if request.method == "PUT":
         return create_or_update_user(request.form)
 
-    return jsonify(json.loads(user))
+    user = json.loads(user)
+    user["stats"] = {}
+
+    stats = r.hgetall(stat_key(user_id))
+
+    for key, value in stats.items():
+        user["stats"][str(key, "utf8")] = json.loads(value)
+
+    return jsonify(user)
 
 
 @app.route("/stats/", methods=["POST"])
@@ -121,4 +134,21 @@ def stats():
     # monthly_reviews
     # retention
     # total_cards
-    pass
+    if request.method == "POST":
+        user_id = request.form["user_id"]
+
+        user = r.get(user_key(user_id))
+
+        if not user:
+            abort(400)
+
+        stats = {
+            "streak": request.form["streak"],
+            "total_cards": request.form["total_cards"],
+            "time_today": request.form["time_today"],
+            "past_30_days": request.form["past_30_days"],
+            "retention": request.form["retention"],
+        }
+        r.hset(stat_key(user_id), str(time.time()), json.dumps(stats))
+
+        return jsonify(stats)

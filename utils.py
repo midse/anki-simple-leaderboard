@@ -48,4 +48,25 @@ def create_or_update_user():
         return False
 
 
+def update_stats(results):
+    config = mw.addonManager.getConfig(__name__)
+    endpoint = config["backend_url"] + f"/stats/"
+
+    data = {
+        "user_id": config["user_id"],
+        "streak": results[0],
+        "total_cards": results[1],
+        "time_today": results[2],
+        "past_30_days": results[3],
+        "retention": results[4],
+    }
+    r = requests.post(endpoint, data)
+
+    try:
+        r.raise_for_status()
+        logger.info("Stats were properly updated!")
+    except:
+        logger.critical("Unable to update stats!")
+
+
 logger = config_logger()

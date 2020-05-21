@@ -18,12 +18,15 @@ import logging
 
 from aqt import mw, gui_hooks
 from .stats import stats
-from .utils import logger, create_or_update_user
+from .utils import logger, create_or_update_user, update_stats
 
 
 def profile_open():
     logger.info("Profile open!")
-    logger.info(stats())
+
+    results = stats()
+    logger.info(results)
+    update_stats(results)
 
 
 def profile_close():
@@ -33,7 +36,9 @@ def profile_close():
         logger.critical("Unable to update user information!")
         return
 
-    logger.info(stats())
+    results = stats()
+    logger.info(results)
+    update_stats(results)
 
 
 logger.info("Launching leaderboard...")
