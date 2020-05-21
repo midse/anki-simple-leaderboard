@@ -17,11 +17,13 @@ import os
 import logging
 
 from aqt import mw, gui_hooks
+from aqt.qt import QMenu
+from aqt.utils import showText
 from .stats import stats
 from .utils import logger, create_or_update_user, update_stats
 
 
-def profile_open():
+def hook_profile_open():
     logger.info("Profile open!")
 
     results = stats()
@@ -29,7 +31,7 @@ def profile_open():
     update_stats(results)
 
 
-def profile_close():
+def hook_profile_close():
     logger.info("Profile close!")
 
     if not create_or_update_user():
@@ -40,6 +42,14 @@ def profile_close():
     logger.info(results)
     update_stats(results)
 
+def display_leaderboard():
+    txt = "HEY"
+    showText(
+    txt,
+    type="html",
+    title="Leaderboard",
+)
+
 
 logger.info("Launching leaderboard...")
 
@@ -47,5 +57,14 @@ if not create_or_update_user():
     logger.critical("Unable to update user information!")
 else:
     # Linking hooks
-    gui_hooks.profile_did_open.append(profile_open)
-    gui_hooks.profile_will_close.append(profile_close)
+    gui_hooks.profile_did_open.append(hook_profile_open)
+    gui_hooks.profile_will_close.append(hook_profile_close)
+
+    pa_menu = QMenu('Leaderboard', mw)
+    pa_menu_display = pa_menu.addAction('Display')
+    pa_menu_create = pa_menu.addAction('Create team')
+    # # add triggers
+    pa_menu_display.triggered.connect(display_leaderboard)
+    # pa_menu_remove.triggered.connect(remove_pitch_dialog)
+    # and add it to the tools menu
+    mw.form.menuTools.addMenu(pa_menu)

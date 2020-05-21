@@ -61,8 +61,9 @@ def create_or_update_user(form):
 def teams():
     if request.method == "POST":
         user_id = request.form["user_id"]
+        user = r.get(user_key(user_id))
 
-        if not r.get(user_key(user_id)) or r.sismember(owners_key(), user_id):
+        if not user or r.sismember(owners_key(), user_id):
             abort(400)
 
         team_id = str(uuid.uuid4())
@@ -72,8 +73,14 @@ def teams():
             "team_name": request.form["team_name"],
             "team_desc": request.form["team_desc"],
         }
+
+        # Set up team details
         r.set(team_key(team_id, details=True), json.dumps(team_details))
+
+        # Owner must be part of its own team
         r.sadd(team_key(team_id), request.form["user_id"])
+
+        # Add user to owner list to avoid multiple teams for one user
         r.sadd(owners_key(), user_id)
 
         return jsonify(team_details)
