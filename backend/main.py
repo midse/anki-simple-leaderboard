@@ -74,8 +74,16 @@ def teams():
 
 
 @app.route("/teams/<uuid:team_id>", methods=["GET", "PUT"])
-def team(username):
-    return ""
+def team(team_id):
+    team = r.get(team_key(team_id, details=True))
+
+    if not team:
+        abort(404)
+
+    if request.method == "PUT":
+        abort(400)
+
+    return jsonify(json.loads(team))
 
 
 @app.route("/users", methods=["GET", "POST"])
