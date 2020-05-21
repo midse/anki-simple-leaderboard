@@ -7,7 +7,7 @@ def config_logger():
     path = os.path.dirname(os.path.realpath(__file__))
     handler = logging.FileHandler(f"{path}/debug.log")
     formatter = logging.Formatter(
-        "%(asctime)s %(levelname)s %(filename)10s:%(lineno)s %(message)s"
+        "%(asctime)s %(levelname)s %(message)s"
     )
     handler.setFormatter(formatter)
     my_logger.addHandler(handler)

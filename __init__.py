@@ -22,11 +22,19 @@ from .stats import stats
 from .utils import logger
 
 
-def statistics(collection):
-    logger.info("Hook!")
+def statistics():
     results = stats()
-    logger.info(f"{collection} : {results}")
+    logger.info(f"{results}")
 
+
+def profile_open():
+    logger.info("Profile open!")
+    statistics()
+
+def profile_close():
+    logger.info("Profile close!")
+    statistics()
 
 logger.info("Launching leaderboard...")
-gui_hooks.collection_did_load.append(statistics)
+gui_hooks.profile_did_open.append(profile_open)
+gui_hooks.profile_will_close.append(profile_close)
