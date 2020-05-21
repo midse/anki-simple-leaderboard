@@ -28,6 +28,10 @@ def stat_key(user_id):
     return f"stat::{user_id}"
 
 
+def owners_key():
+    return "owners"
+
+
 def create_or_update_user(form):
     user_id = form["user_id"]
     user_name = form["user_name"]
@@ -58,7 +62,7 @@ def teams():
     if request.method == "POST":
         user_id = request.form["user_id"]
 
-        if not r.get(user_key(user_id)):
+        if not r.get(user_key(user_id)) or r.sismember(owners_key(), user_id):
             abort(400)
 
         team_id = str(uuid.uuid4())
@@ -70,6 +74,7 @@ def teams():
         }
         r.set(team_key(team_id, details=True), json.dumps(team_details))
         r.sadd(team_key(team_id), request.form["user_id"])
+        r.sadd(owners_key(), user_id)
 
         return jsonify(team_details)
 
