@@ -44,5 +44,3 @@ else:
     # Linking hooks
     gui_hooks.profile_did_open.append(profile_open)
     gui_hooks.profile_will_close.append(profile_close)
-
-

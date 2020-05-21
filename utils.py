@@ -15,6 +15,7 @@ def config_logger():
     my_logger.setLevel(logging.DEBUG)
     return my_logger
 
+
 def create_or_update_user():
     config = mw.addonManager.getConfig(__name__)
 
@@ -22,7 +23,6 @@ def create_or_update_user():
         config["user_id"] = str(uuid.uuid4())
         logger.info(f"Generating user id : {config['user_id']}")
         mw.addonManager.writeConfig(__name__, config)
-
 
     r = requests.get(config["backend_url"] + f"/users/{config['user_id']}")
     data = {
@@ -46,5 +46,6 @@ def create_or_update_user():
         return True
     except:
         return False
+
 
 logger = config_logger()
