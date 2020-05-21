@@ -4,11 +4,13 @@ import datetime
 from aqt import mw
 from os.path import dirname, join, realpath
 from aqt.utils import showInfo, tooltip
+from .utils import logger
 
 NEW_DAY = 4
 
 
 def stats():
+    logger.info("Stats")
     ###STREAK, REVIEWS PAST 31 DAYS###
     config = mw.addonManager.getConfig(__name__)
     new_day = datetime.time(NEW_DAY, 0, 0)
